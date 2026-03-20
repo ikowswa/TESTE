@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ATLAS — S&Z Segurança</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+  :root {
+    --bg: #FAFAF8;
+    --card: #F2F1ED;
+    --border: #E2E0D8;
+    --accent: #1D6B4F;
+    --accent-light: #E8F5EE;
+    --accent-text: #145239;
+    --text: #1A1A18;
+    --text-2: #6B6960;
+    --user-bg: #1D6B4F;
+    --user-text: #FFF;
+    --bot-bg: #FFFFFF;
+    --typing: #1D6B4F;
+  }
+ 
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141413;
+      --card: #1E1E1C;
+      --border: #2E2E2A;
+      --accent: #5DCAA5;
+      --accent-light: #1A2E26;
+      --accent-text: #9FE1CB;
+      --text: #E8E6E0;
+      --text-2: #8A887E;
+      --user-bg: #1D6B4F;
+      --user-text: #FFF;
+      --bot-bg: #1A1A18;
+      --typing: #5DCAA5;
+    }
+  }
+ 
+  html, body {
+    height: 100%; width: 100%;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+  }
+ 
+  .app {
+    max-width: 760px; margin: 0 auto;
+    height: 100vh; height: 100dvh;
+    display: flex; flex-direction: column;
+    background: var(--bg);
+  }
+ 
+  /* ─── Header ─── */
+  .header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    flex-shrink: 0;
+    background: var(--bg);
+  }
+  .header-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    color: #FFF; font-weight: 600; font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+  .header-title { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+  .header-sub { font-size: 12px; color: var(--text-2); margin-top: 1px; }
+ 
+  /* ─── Chat area ─── */
+  .chat {
+    flex: 1; overflow-y: auto; padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    scroll-behavior: smooth;
+  }
+  .chat::-webkit-scrollbar { width: 4px; }
+  .chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+ 
+  .msg { display: flex; animation: fadeUp 0.22s ease-out; }
+  .msg.user { justify-content: flex-end; }
+ 
+  .bubble {
+    max-width: 85%; padding: 12px 16px;
+    font-size: 14px; line-height: 1.65;
+    word-break: break-word;
+  }
+  .msg.user .bubble {
+    background: var(--user-bg); color: var(--user-text);
+    border-radius: 16px 16px 4px 16px;
+  }
+  .msg.bot .bubble {
+    background: var(--bot-bg); color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 16px 16px 16px 4px;
+  }
+  .bubble strong { font-weight: 600; }
+  .bubble .classif {
+    background: var(--card);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px; border-radius: 0 8px 8px 0;
+    margin: 8px 0; line-height: 2;
+  }
+  .bubble .classif .arrow { color: var(--accent); font-weight: 600; }
+ 
+  /* typing dots */
+  .dots { display: flex; gap: 5px; padding: 14px 20px; }
+  .dots span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--typing);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .dots span:nth-child(2) { animation-delay: 0.15s; }
+  .dots span:nth-child(3) { animation-delay: 0.3s; }
+ 
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+ 
+  /* quick prompts */
+  .quick-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .quick-btn {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 13px; color: var(--text);
+    cursor: pointer; font-family: inherit;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .quick-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent); color: var(--accent-text);
+  }
+ 
+  /* ─── Input bar ─── */
+  .input-bar {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 8px; flex-shrink: 0;
+    background: var(--bg);
+  }
+  .input-bar input {
+    flex: 1; padding: 10px 16px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text); font-size: 14px; font-family: inherit;
+    outline: none; transition: border 0.15s;
+  }
+  .input-bar input:focus { border-color: var(--accent); }
+  .input-bar input::placeholder { color: var(--text-2); }
+  .send-btn {
+    width: 42px; height: 42px; border-radius: 12px;
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .send-btn.active { background: var(--accent); }
+  .send-btn.inactive { background: var(--card); cursor: default; }
+ 
+  /* ─── Config modal ─── */
+  .config-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 20px;
+  }
+  .config-box {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; width: 100%; max-width: 440px;
+  }
+  .config-box h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .config-box p { font-size: 13px; color: var(--text-2); margin-bottom: 16px; line-height: 1.5; }
+  .config-box label { font-size: 13px; color: var(--text-2); display: block; margin-bottom: 6px; }
+  .config-box input {
+    width: 100%; padding: 10px 14px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text); font-size: 14px; font-family: 'JetBrains Mono', monospace;
+    outline: none; margin-bottom: 16px;
+  }
+  .config-box input:focus { border-color: var(--accent); }
+  .config-btn {
+    width: 100%; padding: 12px; border-radius: 10px;
+    background: var(--accent); color: #FFF; border: none;
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    font-family: inherit;
+  }
+  .config-btn:disabled { opacity: 0.5; cursor: default; }
+  .key-hint { font-size: 11px; color: var(--text-2); margin-top: 8px; text-align: center; line-height: 1.5; }
+ 
+  /* gear icon */
+  .gear-btn {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: none; background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    margin-left: auto; opacity: 0.4; transition: opacity 0.15s;
+  }
+  .gear-btn:hover { opacity: 0.8; }
+ 
+  @media (max-width: 500px) {
+    .bubble { max-width: 92%; }
+    .header { padding: 12px 14px; }
+    .chat { padding: 12px 14px; }
+    .input-bar { padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+ 
+<div class="app" id="app">
+ 
+  <!-- Config screen -->
+  <div class="config-overlay" id="configScreen">
+    <div class="config-box">
+      <h2>Configurar ATLAS</h2>
+      <p>Para funcionar, o ATLAS precisa de uma chave de API da Anthropic. A chave fica salva apenas no seu navegador — nunca é enviada para nenhum servidor além da Anthropic.</p>
+      <label>Chave da API Anthropic</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
+      <button class="config-btn" id="saveKeyBtn" disabled>Salvar e começar</button>
+      <div class="key-hint">
+        Obtenha sua chave em <strong>console.anthropic.com</strong><br>
+        A chave fica armazenada somente neste dispositivo.
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Main chat -->
+  <div class="header">
+    <div class="header-icon">SZ</div>
+    <div>
+      <div class="header-title">ATLAS</div>
+      <div class="header-sub">Classificador financeiro · S&Z Segurança</div>
+    </div>
+    <button class="gear-btn" id="gearBtn" title="Configurações">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+ 
+  <div class="chat" id="chat"></div>
+ 
+  <div class="input-bar">
+    <input type="text" id="userInput" placeholder="Descreva a saída ou faça uma pergunta..." disabled>
+    <button class="send-btn inactive" id="sendBtn" disabled>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sendIcon">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+ 
+<script>
+// ═══════════════════════════════════════
+// KNOWLEDGE BASE — S&Z SEGURANÇA
+// ═══════════════════════════════════════
+const SYSTEM = `Você é o assistente financeiro oficial da S&Z Segurança (Santos & Zanon Tecnologia e Segurança Ltda). Seu nome é ATLAS — Assistente de Tesouraria, Lançamentos e Alocação de Saídas.
+ 
+Você é consultado pela equipe administrativa e financeira para classificar QUALQUER saída de caixa da empresa. Responda SEMPRE de forma clara, objetiva e didática.
+ 
+═══════════════════════════════════════
+SOBRE A EMPRESA
+═══════════════════════════════════════
+ 
+A S&Z Segurança opera desde 2017 no setor de tecnologia e segurança eletrônica, com foco em:
+- Monitoramento 24h (central de operações)
+- Rastreamento veicular e de cargas via GPS
+- Pronta resposta a incidentes
+- Recuperação de equipamentos via RF (radiofrequência)
+- Investigação e inteligência
+- Venda e locação de rastreadores GPS, iscas (decoys) e localizadores
+ 
+A empresa tem duas unidades operacionais:
+1. CENTRAL 24H: Centro de operações que funciona ininterruptamente, responsável por monitoramento, atendimento de alarmes, escalonamento de incidentes
+2. UNIDADE DE SUPORTE: Equipe de campo (pronta resposta), comercial, administrativo, TI
+ 
+═══════════════════════════════════════
+PRODUTOS E EQUIPAMENTOS
+═══════════════════════════════════════
+ 
+Equipamentos comercializados/locados:
+- Rastreadores GPS: Suntech (ST340LC, ST4315, ST310U), Lumini Tracker
+- Iscas descartáveis e reutilizáveis (decoys para carga)
+- Localizadores portáteis
+- Antenas e receptores RF para recuperação
+ 
+Insumos operacionais recorrentes:
+- Chips M2M / SIM cards GPRS (comunicação dos rastreadores)
+- Baterias para rastreadores e iscas
+- Cabos, conectores, antenas de reposição
+- Lacres e embalagens para iscas descartáveis
+ 
+═══════════════════════════════════════
+CENTROS DE CUSTO
+═══════════════════════════════════════
+ 
+CC01 - CENTRAL 24H
+CC02 - PRONTA RESPOSTA
+CC03 - OPERAÇÕES / TÉCNICA
+CC04 - COMERCIAL
+CC05 - ADMINISTRATIVO
+CC06 - TI / SISTEMAS
+CC07 - FINANCEIRO
+CC08 - FISCAL / TRIBUTÁRIO
+CC09 - SÓCIOS / SOCIETÁRIO
+CC10 - PROJETOS ESPECIAIS
+ 
+═══════════════════════════════════════
+CLASSIFICAÇÃO — CATEGORIA DFC
+═══════════════════════════════════════
+ 
+OPERACIONAL: Toda saída necessária para a empresa funcionar no dia a dia (salários, aluguel, combustível, chips M2M, manutenção, impostos, marketing, honorários, seguros).
+ 
+INVESTIMENTO: Aquisição de ativos que duram mais de 12 meses (lotes de rastreadores, veículos, equipamentos de RF, computadores, reformas, desenvolvimento de software como projeto).
+ 
+FINANCIAMENTO: Movimentação de capital e dívida (amortização de empréstimos, parcelas de financiamento, distribuição de lucros, tarifas bancárias, juros, IOF).
+ 
+═══════════════════════════════════════
+CLASSIFICAÇÃO — NATUREZA
+═══════════════════════════════════════
+ 
+OPEX: Gasto que "some" no período. Não vira patrimônio.
+CAPEX: Compra que vira ATIVO da empresa.
+N/A: Movimentações financeiras puras.
+ 
+REGRA IMPORTANTE sobre rastreadores e iscas:
+- Compra de LOTE para estoque/locação = CAPEX
+- Reposição individual por defeito = OPEX
+- Iscas descartáveis consumidas < 12 meses = OPEX
+- Chips M2M = sempre OPEX
+ 
+═══════════════════════════════════════
+CLASSIFICAÇÃO — COMPORTAMENTO
+═══════════════════════════════════════
+ 
+FIXO: Não muda com volume (aluguel, salários, seguros, licenças).
+VARIÁVEL: Muda com demanda (combustível, comissões, chips M2M, impostos sobre faturamento).
+SEMI-VARIÁVEL: Parte fixa + parte variável (energia, telefonia).
+N/A: Para CAPEX e algumas movimentações financeiras.
+ 
+═══════════════════════════════════════
+CLASSIFICAÇÃO — TIPO DE DESPESA
+═══════════════════════════════════════
+ 
+CUSTO DIRETO: Ligado à entrega do serviço ao cliente.
+CUSTO INDIRETO: Necessário para funcionar, não ligado a cliente específico.
+DESPESA COMERCIAL: Para conquistar/manter clientes.
+DESPESA ADMINISTRATIVA: Gestão e suporte geral.
+DESPESA FINANCEIRA: Custo do dinheiro.
+INVESTIMENTO: Aquisição de ativos.
+ 
+═══════════════════════════════════════
+PROJETOS
+═══════════════════════════════════════
+ 
+OPERAÇÃO CORRENTE | EXPANSÃO | IMPLANTAÇÃO CLIENTE [NOME] | RENOVAÇÃO FROTA | MODERNIZAÇÃO TI | CONTRACTOS / SISTEMAS | ZENDESK | Outros conforme surgirem.
+ 
+═══════════════════════════════════════
+FORMATO DE RESPOSTA
+═══════════════════════════════════════
+ 
+Quando classificar uma saída, SEMPRE use:
+ 
+📋 CLASSIFICAÇÃO
+▸ Centro de custo: [código e nome]
+▸ Categoria DFC: [OPERACIONAL / INVESTIMENTO / FINANCIAMENTO]
+▸ Natureza: [OPEX / CAPEX / N/A]
+▸ Tipo: [Custo Direto / Custo Indireto / Desp. Comercial / Desp. Administrativa / Desp. Financeira / Investimento]
+▸ Comportamento: [FIXO / VARIÁVEL / SEMI-VARIÁVEL / N/A]
+▸ Projeto: [OPERAÇÃO CORRENTE ou nome do projeto]
+ 
+Depois, explique o porquê em 2-3 frases.
+Se houver ambiguidade, pergunte antes de classificar.
+Seja direto, use linguagem simples, sempre em português brasileiro.`;
+ 
+const WELCOME = `Olá! Sou o **ATLAS** — Assistente de Tesouraria, Lançamentos e Alocação de Saídas da S&Z Segurança.
+ 
+Descreva qualquer saída de caixa e eu classifico para você com:
+• Centro de custo
+• Categoria DFC
+• Natureza (OPEX / CAPEX)
+• Tipo de despesa
+• Comportamento (Fixo / Variável)
+• Projeto vinculado
+ 
+Pode digitar algo como *"paguei R$ 3.200 na parcela do financiamento da van"* ou me perguntar *"qual a diferença entre OPEX e CAPEX?"*`;
+ 
+const QUICK = [
+  "Comprei 100 rastreadores Suntech",
+  "Parcela do financiamento da van",
+  "Conta de luz da central",
+  "Comissão do vendedor",
+  "O que é CAPEX?",
+  "50 chips M2M para rastreadores",
+];
+ 
+// ─── State ───
+let apiKey = '';
+let messages = [];
+let loading = false;
+ 
+const $ = id => document.getElementById(id);
+const chat = $('chat');
+const input = $('userInput');
+const sendBtn = $('sendBtn');
+const sendIcon = $('sendIcon');
+ 
+// ─── Init ───
+function init() {
+  const saved = localStorage.getItem('atlas_api_key');
+  if (saved) {
+    apiKey = saved;
+    $('configScreen').style.display = 'none';
+    input.disabled = false;
+    input.focus();
+    addBotMessage(WELCOME);
+    renderQuick();
+  }
+}
+ 
+$('apiKeyInput').addEventListener('input', e => {
+  $('saveKeyBtn').disabled = !e.target.value.startsWith('sk-');
+});
+ 
+$('saveKeyBtn').addEventListener('click', () => {
+  apiKey = $('apiKeyInput').value.trim();
+  localStorage.setItem('atlas_api_key', apiKey);
+  $('configScreen').style.display = 'none';
+  input.disabled = false;
+  input.focus();
+  addBotMessage(WELCOME);
+  renderQuick();
+});
+ 
+$('gearBtn').addEventListener('click', () => {
+  $('apiKeyInput').value = apiKey;
+  $('configScreen').style.display = 'flex';
+  $('saveKeyBtn').disabled = false;
+});
+ 
+// ─── Render ───
+function formatText(t) {
+  return t
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/▸/g, '<span class="arrow">▸</span>')
+    .replace(/📋 CLASSIFICAÇÃO/g, '<div class="classif">📋 <strong>CLASSIFICAÇÃO</strong>')
+    .replace(/\n\n/g, '</div><br>')
+    .replace(/\n/g, '<br>');
+}
+ 
+function addBotMessage(text) {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = `<div class="bubble">${formatText(text)}</div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+ 
+function addUserMessage(text) {
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `<div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+ 
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot'; div.id = 'typing';
+  div.innerHTML = '<div class="bubble"><div class="dots"><span></span><span></span><span></span></div></div>';
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+function hideTyping() {
+  const el = $('typing'); if (el) el.remove();
+}
+ 
+function renderQuick() {
+  if (messages.length > 0) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'quick-wrap'; wrap.id = 'quickWrap';
+  QUICK.forEach(q => {
+    const btn = document.createElement('button');
+    btn.className = 'quick-btn'; btn.textContent = q;
+    btn.onclick = () => send(q);
+    wrap.appendChild(btn);
+  });
+  chat.appendChild(wrap);
+}
+ 
+function removeQuick() {
+  const el = $('quickWrap'); if (el) el.remove();
+}
+ 
+// ─── Input state ───
+input.addEventListener('input', () => {
+  const hasText = input.value.trim().length > 0;
+  sendBtn.className = 'send-btn ' + (hasText ? 'active' : 'inactive');
+  sendIcon.setAttribute('stroke', hasText ? '#FFF' : '#999');
+  sendBtn.disabled = !hasText;
+});
+ 
+input.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && !loading) { e.preventDefault(); send(); }
+});
+ 
+sendBtn.addEventListener('click', () => { if (!loading) send(); });
+ 
+// ─── Send ───
+async function send(text) {
+  const userText = text || input.value.trim();
+  if (!userText || loading) return;
+ 
+  removeQuick();
+  input.value = '';
+  sendBtn.className = 'send-btn inactive';
+  sendIcon.setAttribute('stroke', '#999');
+ 
+  addUserMessage(userText);
+  messages.push({ role: 'user', content: userText });
+  loading = true;
+  input.disabled = true;
+  showTyping();
+ 
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: SYSTEM,
+        messages: messages
+      })
+    });
+ 
+    const data = await res.json();
+ 
+    if (data.error) {
+      const reply = `Erro da API: ${data.error.message || 'Verifique sua chave.'}`;
+      hideTyping();
+      addBotMessage(reply);
+      loading = false;
+      input.disabled = false;
+      input.focus();
+      return;
+    }
+ 
+    const reply = data.content?.map(b => b.text || '').filter(Boolean).join('\n')
+      || 'Não consegui processar. Tente novamente.';
+ 
+    messages.push({ role: 'assistant', content: reply });
+    hideTyping();
+    addBotMessage(reply);
+  } catch (err) {
+    hideTyping();
+    addBotMessage('Erro de conexão. Verifique sua internet e tente novamente.');
+  }
+ 
+  loading = false;
+  input.disabled = false;
+  input.focus();
+}
+ 
+init();
+</script>
+</body>
+</html>
